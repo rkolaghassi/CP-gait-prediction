@@ -22,7 +22,7 @@ These procedures are implemented in the following files respectively:
 
 
 ## Citation 
-Parts of this code have been used to develop the following research paper: "Deep Learning Models for Stable Gait Prediction Applied to Exoskeleton Reference Trajectories for Children With Cerebral Palsy", available at: https://www.researchgate.net/publication/369051668_Deep_Learning_Models_for_Stable_Gait_Prediction_Applied_to_Exoskeleton_Reference_Trajectories_for_Children_with_Cerebral_Palsy 
+Parts of this code have been used to develop the following research paper: "Deep Learning Models for Stable Gait Prediction Applied to Exoskeleton Reference Trajectories for Children With Cerebral Palsy", available at: https://ieeexplore.ieee.org/document/10058948
 
 ```
 @article{kolaghassi2023deep,
