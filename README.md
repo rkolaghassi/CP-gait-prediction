@@ -12,7 +12,7 @@ This repository contains three procedures:
 2. Training of the networks with gait patterns of typically developing children 
 3. Evaluating the trained networks on typically developing gait and the gait of children with Cerebral Palsy
 
-The evaluation involves assessing the stability during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. It also involves assessing the robustness of the networks under varying levels of Gaussian Noise (1-5%).
+The evaluation involves assessing the stability of the networks during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. It also involves assessing the robustness of the networks under varying levels of Gaussian Noise (1-5%).
 
 These procedures are implemented in the following files respectively:
 
