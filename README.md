@@ -16,9 +16,9 @@ Evaluating the networks involves predicting the stability of predictions in the 
 
 These procedures are implemented in the following files respectively:
 
-1. hyperparameter-optimisation.ipynb
-2. Training.ipynb
-3. Evaluation.ipynb
+1. `hyperparameter-optimisation.ipynb`
+2. `Training.ipynb`
+3. `Evaluation.ipynb`
 
 
 ## Citation 
