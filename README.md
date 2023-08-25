@@ -1,6 +1,6 @@
 # CP-gait-prediction
 
-This software predicts gait trajectories (hip, knee, and ankle angles of the left and right leg) for typically developing (healthy) children and children with Cerebral Palsy. It uses deep learning networks (Fully Connected Networks, Convolutional Neural Networks, Long Short Term Memory Networks, and Transformers) through `pytorch` packages.
+This software predicts gait trajectories (hip, knee, and ankle angles of the left and right leg) for typically developing children and children with Cerebral Palsy (CP). It uses deep learning networks (Fully Connected Networks, Convolutional Neural Networks, Long Short Term Memory Networks, and Transformers) through `pytorch` packages.
 
 <img src="https://github.com/rkolaghassi/CP-gait-prediction/assets/46927648/2e2c5d7d-ac45-446a-9fa3-bf14ac19d129"  width="600" height="250">
 
