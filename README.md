@@ -9,7 +9,7 @@ This software predicts gait trajectories (hip, knee, and ankle angles of the lef
 This repository contains three procedures:
 
 1. Hyperparameter optimisation of the deep learning networks 
-2. Training the networks with gait patterns of typically developing children 
+2. Training of the networks with gait patterns of typically developing children 
 3. Evaluating the trained networks on typically developing gait and the gait of children with Cerebral Palsy
 
 Evaluating the networks involves predicting the stability of predictions in the short-term (one-step-ahead predictions) and in the long-term (200 recursively predicted time-steps). It also involves assessing the robustness of the networks under varying levels of Gaussian Noise (1-5%).
