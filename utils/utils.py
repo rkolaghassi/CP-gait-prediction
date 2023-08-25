@@ -459,3 +459,142 @@ def mae_loss(preds, targets, reduction = 'mean', format='torch'):
 
     return loss, std
 
+
+def pd_to_np_converter(data, n_samples, features):
+    #create a numpy array that stores the data for export
+    sample_ID = []
+    # patients = 2
+    # n_trials = 10
+    # # samples = patients * n_trials
+    data_store = np.zeros((n_samples, 2000, len(features)), dtype=np.float32)
+    i = 0
+
+    for p in data['Patient ID'].unique(): #loop over patients 
+        for t in data['Trial'].unique(): #loop over trials starting with trials 1 to trial 9 (inclusive)
+            pd_array = data[(data['Patient ID'] == p) & (data['Trial'] == t)]
+            if pd_array.empty:
+                continue
+                # print('DataFrame is empty!')
+                # print(f'Trail {t} does not exist in {p}')
+            else:
+                np_array = pd_array.to_numpy()
+                data_store[i, :np_array.shape[0], :] = np_array[:,3:] 
+                sample_ID.append(p+ ' Ts'+str(t)) 
+                i +=1
+
+    return pd_array.columns, data_store
+
+def window_generator_fltrd(sequence, input_window, output_window, stride, features, labels):
+    """
+    Trims the input sequence from leading and trailing zeros, then generates an array with input windows and another array for the corresponding output windows
+    Args:
+        sequence: (np.array, float32) columns are features while rows are time points
+        features: (list, strin~g) column names
+        input_window: (int)
+        stride (int): the value the input window shifts along the sequence 
+    Returns:
+
+    """
+    # shortest_seqLen = float('inf')
+
+    # f_zeros = [] #array that stores the number of leading zeros for each feature
+    b_zeros = [] #array that stores the number of trailing zeros for each feacture 
+
+    for f in features:
+        # trim the leading and training zeros
+        # f_zeros.append(sequence[:,labels[f]].shape[0] - np.trim_zeros(sequence[:,labels[f]], 'f').shape[0]) #forward zeros
+        b_zeros.append(sequence[:,labels[f]].shape[0] - np.trim_zeros(sequence[:,labels[f]], 'b').shape[0]) #backward zeros
+
+    # max_f_zeros = max(f_zeros) #find the maximum number of leading zeros
+    max_b_zeros = max(b_zeros) #find the maximum number of trailing/backward zeros 
+    # print(max_b_zeros)
+
+    #total sequence length minus max leading and trailing zeros 
+    trimmed_seqLen = sequence[:,0].shape[0] - (max_b_zeros)
+    trimmed_seqLen_reduced = trimmed_seqLen - 300 #reducing sequence size to remove the first and last 200 timesteps which may contain errors   
+    print(f'trimmed_seqLen: {trimmed_seqLen}')
+    print(f'trimmed_seqLen_reduced: {trimmed_seqLen_reduced}')
+
+
+    # Slides are the number of times the input window can scan the sequence 
+    # Using the equation that calculates the number of outputs as in convolution  (W – F + 2P) / S + 1, W=input image width, F=filter width, P=padding, S=stride
+    # The width of the image is taken as the number of time steps in the sequence, corresponding to the length of any TRIMMED column in the data 
+    slides = ((trimmed_seqLen_reduced - (input_window+output_window)) // stride) + 1
+    print(f"number of slides is: {slides}")
+
+    # Calculating the first index of each of the output sequences (first index always f_zeros as its always shifted to start with the first non-zero element)
+    seq_indicies = (np.arange(slides) * stride) + 150
+
+    if slides <= 0:
+        raise ValueError("input window and output window length are greater than sequence length, check their values")
+
+    # Creates an zero numpy array to store the samples in 
+    X_values = np.zeros((len(seq_indicies) , input_window, len(features)))
+    Y_values = np.zeros((len(seq_indicies), output_window, len(features)))
+
+    # Loop through the features, then loop through the list of sequence indicies needed for input and output windows 
+    for j, feature in enumerate(features):
+        # print(j)
+        # print(feature)
+        for i, idx in enumerate(seq_indicies):
+            X_values[i, :, j] = sequence[idx:idx+input_window, labels[feature]]
+            Y_values[i, :, j] = sequence[idx+input_window:idx+input_window + output_window, labels[feature]]
+
+    return X_values, Y_values 
+
+def window_generator_lt_fltrd(sequence, input_window, future_window, stride, features, labels): #window gernerator long term fltrd (creats a validation window up to 200 timesteps in advance to measure error on long term future predictions)
+    """
+    Trims the input sequence from leading and trailing zeros, then generates an array with input windows and another array for the corresponding output windows
+    Args:
+        sequence: (np.array, float32) columns are features while rows are time points
+        features: (list, strin~g) column names
+        input_window: (int)
+        stride (int): the value the input window shifts along the sequence 
+    Returns:
+
+    """
+    b_zeros = [] #array that stores the number of trailing zeros for each feacture 
+
+    for f in features:
+        # trim the leading and training zeros
+        b_zeros.append(sequence[:,labels[f]].shape[0] - np.trim_zeros(sequence[:,labels[f]], 'b').shape[0]) #backward zeros
+
+    max_b_zeros = max(b_zeros) #find the maximum number of trailing/backward zeros 
+    # print(max_b_zeros)
+
+    fltrd_samples = 2 * 150 #remove 100 timesteps from the beggining and ending of the entire sequence
+    # lt_len = 200 # number of timesteps to predict in the future based on a single input window (to be used in measuring errors based on prediction input)
+    
+    #total sequence length minus max leading and trailing zeros 
+    trimmed_seqLen = sequence[:,0].shape[0] - (max_b_zeros)
+    trimmed_seqLen_reduced = trimmed_seqLen - (fltrd_samples) # (- fltrd_samples is done to reduce sequence size to remove the first and last 150 timesteps which may contain errors since they corresponding to beggining and ending of the trials 
+    print(f'trimmed_seqLen: {trimmed_seqLen}')
+    print(f'trimmed_seqLen_reduced: {trimmed_seqLen_reduced}')
+
+
+    # Slides are the number of times the input window can scan the sequence 
+    # Using the equation that calculates the number of outputs as in convolution  (W – F + 2P) / S + 1, W=input image width, F=filter width, P=padding, S=stride
+    # The width of the image is taken as the number of time steps in the sequence, corresponding to the length of any TRIMMED column in the data 
+    slides = ((trimmed_seqLen_reduced - (input_window+future_window)) // stride) + 1
+    print(f"number of slides is: {slides}")
+
+    # Calculating the first index of each of the output sequences (first index always f_zeros as its always shifted to start with the first non-zero element)
+    seq_indicies = (np.arange(slides) * stride) + 150
+
+    if slides <= 0:
+        raise ValueError("input window and output window length are greater than sequence length, check their values")
+        # return None 
+
+    # Creates an zero numpy array to store the samples in 
+    X_values = np.zeros((len(seq_indicies) , input_window, len(features)))
+    Y_values = np.zeros((len(seq_indicies), future_window, len(features)))
+
+    # Loop through the features, then loop through the list of sequence indicies needed for input and output windows 
+    for j, feature in enumerate(features):
+        # print(j)
+        # print(feature)
+        for i, idx in enumerate(seq_indicies):
+            X_values[i, :, j] = sequence[idx:idx+input_window, labels[feature]]
+            Y_values[i, :, j] = sequence[idx+input_window:idx+input_window + future_window, labels[feature]]
+
+    return X_values, Y_values 
