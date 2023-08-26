@@ -8,7 +8,7 @@ This software predicts gait trajectories (hip, knee, and ankle angles of the lef
 
 This repository contains three procedures:
 
-1. Hyperparameter optimisation of the deep learning networks 
+1. Hyperparameter optimisation of the deep learning networks ustilising `optuna` library
 2. Training of the networks with gait patterns of typically developing children 
 3. Evaluating the trained networks on typically developing gait and the gait of children with Cerebral Palsy
 
