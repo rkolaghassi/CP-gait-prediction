@@ -68,7 +68,7 @@ def create_dataframe(train_files, all_features):
         #Remove data at the beggining and in between trials (correspond to Trial value of 0)
         data = fltrd_data.drop(fltrd_data[fltrd_data.Trial == 0].index)
 
-        #Concatenate trials into a big array 
+        #Concatenate trials 
         all_data = pd.concat([all_data, data], axis=0)
 
     return all_data
@@ -81,7 +81,7 @@ def window_generator(sequence, input_window, output_window, stride, features, la
     Trims the input sequence from leading and trailing zeros, then generates an array with input windows and another array for the corresponding output windows
     Args:
         sequence: (np.array, float32) columns are features while rows are time points
-        features: (list, strin~g) column names
+        features: (list, string) column names
         input_window: (int)
         stride (int): the value the input window shifts along the sequence 
     Returns:
@@ -99,7 +99,6 @@ def window_generator(sequence, input_window, output_window, stride, features, la
 
     # max_f_zeros = max(f_zeros) #find the maximum number of leading zeros
     max_b_zeros = max(b_zeros) #find the maximum number of trailing/backward zeros 
-    # print(max_b_zeros)
 
     #total sequence length minus max leading and trailing zeros 
     trimmed_seqLen = sequence[:,0].shape[0] - (max_b_zeros)    
@@ -123,8 +122,7 @@ def window_generator(sequence, input_window, output_window, stride, features, la
 
     # Loop through the features, then loop through the list of sequence indicies needed for input and output windows 
     for j, feature in enumerate(features):
-        # print(j)
-        # print(feature)
+
         for i, idx in enumerate(seq_indicies):
             X_values[i, :, j] = sequence[idx:idx+input_window, labels[feature]]
             Y_values[i, :, j] = sequence[idx+input_window:idx+input_window + output_window, labels[feature]]
@@ -157,7 +155,6 @@ def normalise_fit(data):
     scaling_factors = np.zeros((2, features))
 
     for feature in range(features):
-        # print(feature)
         scaling_factors[0, feature], scaling_factors[1, feature] =  data[:,:,feature].min(), data[:,:,feature].max() #index 0 is for min, index 1 for max (applies to all features)
         normalised_data[:,:,feature] = (data[:,:,feature] - data[:,:,feature].min())/ (data[:,:,feature].max() - data[:,:,feature].min())
 
@@ -179,9 +176,7 @@ def normalise_transform(data, scaling_factors):
     if data.shape[-1] > 1:
         for feature in range(data.shape[-1]): #loop over the number of features
             min_val = scaling_factors[0, feature] #get minimum value
-            # print(f'min_val = {min_val}')
             max_val = scaling_factors[1, feature] # get maximum value 
-            # print(f'max_val = {max_val}')
 
             transformed_data[:,:,feature] = (data[:,:,feature] - min_val) / (max_val - min_val)
     
@@ -196,7 +191,6 @@ def normalise_transform(data, scaling_factors):
 
 
 
-# denorm_value = ((max-min) * norm_value) + min
 def denormalise(data, scaling_factors):
     '''
     De-normalise data of the model
@@ -221,7 +215,6 @@ def create_dataframe(train_files, all_features):
 
     # try:
     for f in train_files:
-        # print(f'train_file: {f}')
 
         if os.path.exists(f):
             print(f'Extracting data from: {f}')
@@ -296,7 +289,6 @@ def train_LSTM(model, train_dataloader, val_dataloader, num_epochs, learning_rat
     loss_function = nn.MSELoss(reduction='mean')
     optimiser = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
-    # train_loss, val_loss = np.zeros(num_epochs), np.zeros(num_epochs)
     train_loss = np.zeros(num_epochs)
     val_loss = np.zeros(num_epochs)
 
@@ -309,13 +301,11 @@ def train_LSTM(model, train_dataloader, val_dataloader, num_epochs, learning_rat
             # Save batch on GPU
             batch_inputs, batch_targets = batch_inputs.to(device), batch_targets.to(device)
 
-            # Means we are training the model, so uses techniques such as dropout etc., otherwise model.train(model=False)
             model.train() 
 
             #set gradients to zero
             optimiser.zero_grad()
             preds = model(batch_inputs)
-            # print(f'shape of training predictions: {preds.shape}')
         
             loss = loss_function(preds, batch_targets)
             
@@ -330,16 +320,15 @@ def train_LSTM(model, train_dataloader, val_dataloader, num_epochs, learning_rat
 
         # Evaluate on validation set
 
-        model.eval() # means we are evaluating the model, stops process such as dropout etc. 
+        model.eval() #evaluating the model, stops process such as dropout etc. 
         runningLoss_val = 0.
 
         with torch.no_grad(): # makes sure gradient is not stored 
             for idx, (batch_inputs, batch_targets) in enumerate(val_dataloader):
                 
                 batch_inputs, batch_targets = batch_inputs.to(device), batch_targets.to(device)
-                optimiser.zero_grad() #WHY?
+                optimiser.zero_grad() 
                 preds = model(batch_inputs)
-                # print(f'shape of validation predictions: {preds.shape}')
 
                 loss = loss_function(preds, batch_targets)
                 runningLoss_val += loss.item()
@@ -349,7 +338,6 @@ def train_LSTM(model, train_dataloader, val_dataloader, num_epochs, learning_rat
         print(f"Epoch: [{epoch + 1}/{num_epochs}]", f"Validation loss: {runningLoss_val/len(val_dataloader)}")
 
     return train_loss, val_loss
-
 
 
 
@@ -366,37 +354,13 @@ def test_LSTM(model, dataloader, device):
 
             batch_inputs, batch_targets = batch_inputs.to(device), batch_targets.to(device)
 
-            # if idx==0:
-            #     batch_preds = model(batch_inputs)
-            #     # print(f'batch shape: {batch_preds.shape}')
-            #     loss = loss_function(batch_preds, batch_targets)
-            #     running_loss += loss.item()
-            #     current_preds = batch_preds
-            #     all_preds = batch_preds
-
-            # else:
-            #     batch_preds = model(batch_inputs)
-            #     print(f'batch shape: {batch_preds.shape}')
-            #     loss = loss_function(batch_preds, batch_targets)
-            #     running_loss += loss.item()
-            #     all_preds = torch.cat((current_preds, batch_preds), dim=0)
-            #     current_preds = batch_preds
+        
 
             batch_preds = model(batch_inputs)
             loss = loss_function(batch_preds, batch_targets)
             running_loss += loss.item()
             actual_output.append(batch_targets)
             pred_output.append(batch_preds)
-
-
-            #             lst = []
-            # print(f'{x.size()}')
-            # for i in range(10):
-            #     x += i  # say we do something with x at iteration i
-            #     lst.append(x)
-            # # lstt = torch.stack([x for _ in range(10)])
-            # lstt = torch.stack(lst)
-            # print(lstt.size())
 
         total_loss = running_loss / len(dataloader)
 
@@ -412,10 +376,6 @@ def mse_loss(preds, targets, reduction = 'mean', format='torch'):
     
     if format == 'torch': #default option
         loss = 1/(preds.shape[0]*preds.shape[1]*preds.shape[2]) * torch.sum((targets - preds) ** 2)
-        # print(f'divide shape: {preds.shape[0]*preds.shape[1]*preds.shape[2]}')
-        # print(f'square sum: {torch.sum((targets - preds) ** 2)}')
-
-        # std = torch.sqrt(torch.sum((((targets - preds) ** 2) - loss)**2) * (1/preds.shape[0]*preds.shape[1]*preds.shape[2]-1))
         std = torch.std()
         
         if reduction == 'sum':
@@ -423,11 +383,7 @@ def mse_loss(preds, targets, reduction = 'mean', format='torch'):
     
     if format == 'np':
         loss = 1/(preds.shape[0]*preds.shape[1]*preds.shape[2]) * np.sum((targets - preds) ** 2)
-        # print(f'divide shape: {preds.shape[0]*preds.shape[1]*preds.shape[2]}')
-        # print(f'square sum: {torch.sum((targets - preds) ** 2)}')
-
         std = np.std(((targets - preds) ** 2).reshape(-1,1).squeeze())
-        # print(np.sqrt(np.sum(((targets - preds) ** 2) - loss)**2))
         
         if reduction == 'sum':
             loss = np.sum((targets - preds) ** 2)
@@ -441,16 +397,13 @@ def mae_loss(preds, targets, reduction = 'mean', format='torch'):
 
     if format == 'torch': #default option
         loss = 1/(preds.shape[0]*preds.shape[1]*preds.shape[2]) * torch.sum(torch.abs(targets - preds))
-        # print(f'divide shape: {preds.shape[0]*preds.shape[1]*preds.shape[2]}')
-        # print(f'square sum: {torch.sum((targets - preds) ** 2)}')
+
         
         if reduction == 'sum':
             loss = torch.sum(torch.abs(targets - preds))
     
     if format == 'np':
-        loss = 1/(preds.shape[0]*preds.shape[1]*preds.shape[2]) * np.sum(np.absolute(targets - preds))
-        # print(f'divide shape: {preds.shape[0]*preds.shape[1]*preds.shape[2]}')
-        # print(f'square sum: {torch.sum((targets - preds) ** 2)}')
+        loss = 1/(preds.shape[0]*preds.shape[1]*preds.shape[2]) * np.sum(np.absolute(targets - preds))  
         
         std = np.std(np.abs(targets - preds).reshape(-1,1).squeeze())
 
@@ -507,7 +460,6 @@ def window_generator_fltrd(sequence, input_window, output_window, stride, featur
 
     # max_f_zeros = max(f_zeros) #find the maximum number of leading zeros
     max_b_zeros = max(b_zeros) #find the maximum number of trailing/backward zeros 
-    # print(max_b_zeros)
 
     #total sequence length minus max leading and trailing zeros 
     trimmed_seqLen = sequence[:,0].shape[0] - (max_b_zeros)
@@ -534,8 +486,6 @@ def window_generator_fltrd(sequence, input_window, output_window, stride, featur
 
     # Loop through the features, then loop through the list of sequence indicies needed for input and output windows 
     for j, feature in enumerate(features):
-        # print(j)
-        # print(feature)
         for i, idx in enumerate(seq_indicies):
             X_values[i, :, j] = sequence[idx:idx+input_window, labels[feature]]
             Y_values[i, :, j] = sequence[idx+input_window:idx+input_window + output_window, labels[feature]]
@@ -547,7 +497,7 @@ def window_generator_lt_fltrd(sequence, input_window, future_window, stride, fea
     Trims the input sequence from leading and trailing zeros, then generates an array with input windows and another array for the corresponding output windows
     Args:
         sequence: (np.array, float32) columns are features while rows are time points
-        features: (list, strin~g) column names
+        features: (list, string) column names
         input_window: (int)
         stride (int): the value the input window shifts along the sequence 
     Returns:
@@ -560,7 +510,6 @@ def window_generator_lt_fltrd(sequence, input_window, future_window, stride, fea
         b_zeros.append(sequence[:,labels[f]].shape[0] - np.trim_zeros(sequence[:,labels[f]], 'b').shape[0]) #backward zeros
 
     max_b_zeros = max(b_zeros) #find the maximum number of trailing/backward zeros 
-    # print(max_b_zeros)
 
     fltrd_samples = 2 * 150 #remove 100 timesteps from the beggining and ending of the entire sequence
     # lt_len = 200 # number of timesteps to predict in the future based on a single input window (to be used in measuring errors based on prediction input)
@@ -591,8 +540,7 @@ def window_generator_lt_fltrd(sequence, input_window, future_window, stride, fea
 
     # Loop through the features, then loop through the list of sequence indicies needed for input and output windows 
     for j, feature in enumerate(features):
-        # print(j)
-        # print(feature)
+
         for i, idx in enumerate(seq_indicies):
             X_values[i, :, j] = sequence[idx:idx+input_window, labels[feature]]
             Y_values[i, :, j] = sequence[idx+input_window:idx+input_window + future_window, labels[feature]]
