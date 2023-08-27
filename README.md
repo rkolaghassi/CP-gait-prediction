@@ -8,9 +8,9 @@ This software is designed to predict gait trajectories, specifically the hip, kn
 
 This repository contains three main procedures:
 
-1. Hyperparameter Optimisation: This phase involves fine-tuning the parameters of the deep learning networks, a task facilitated by the `Optuna` library.
-2. Network Training: The networks are trained using gait patterns from typically developing children.
-3. Network Evaluation: The trained networks are evaluated using both typically developing gait patterns and the gait patterns of children with Cerebral Palsy. Evaluation encompasses analyzing network stability during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. Additionally, the networks' robustness is assessed under varying levels of Gaussian Noise (ranging from 1% to 5%).
+1. **Hyperparameter Optimisation**: This phase involves fine-tuning the parameters of the deep learning networks, a task facilitated by the `Optuna` library.
+2. **Network Training**: The networks are trained using gait patterns from typically developing children.
+3. **Network Evaluation**: The trained networks are evaluated using both typically developing gait patterns and the gait patterns of children with Cerebral Palsy. Evaluation encompasses analyzing network stability during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. Additionally, the networks' robustness is assessed under varying levels of Gaussian Noise (ranging from 1% to 5%).
 
 These procedures are implemented in the following files respectively:
 
