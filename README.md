@@ -1,18 +1,16 @@
 # CP-gait-prediction
 
-This software predicts gait trajectories (hip, knee, and ankle angles of the left and right leg) for typically developing children and children with Cerebral Palsy (CP). It uses deep learning networks (Fully Connected Networks, Convolutional Neural Networks, Long Short Term Memory Networks, and Transformers) utilising the `pytorch` package.
+This software is designed to predict gait trajectories, specifically the hip, knee, and ankle angles of both left and right legs, for both typically developing children and children with Cerebral Palsy (CP). The prediction is accomplished through the utilisation of deep learning networks (Fully Connected Networks, Convolutional Neural Networks, Long Short Term Memory Networks, and Transformers), all of which are implemented using the `PyTorch` package.
 
 <img src="https://github.com/rkolaghassi/CP-gait-prediction/assets/46927648/2e2c5d7d-ac45-446a-9fa3-bf14ac19d129"  width="600" height="250">
 
 ## Workflow
 
-This repository contains three procedures:
+This repository contains three main procedures:
 
-1. Hyperparameter optimisation of the deep learning networks ustilising `optuna` library
-2. Training of the networks with gait patterns of typically developing children 
-3. Evaluating the trained networks on typically developing gait and the gait of children with Cerebral Palsy
-
-The evaluation involves assessing the stability of the networks during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. It also involves assessing the robustness of the networks under varying levels of Gaussian Noise (1-5%).
+1. Hyperparameter Optimisation: This phase involves fine-tuning the parameters of the deep learning networks, a task facilitated by the `Optuna` library.
+2. Network Training: The networks are trained using gait patterns from typically developing children.
+3. Network Evaluation: The trained networks are evaluated using both typically developing gait patterns and the gait patterns of children with Cerebral Palsy. Evaluation encompasses analyzing network stability during short-term (one-step-ahead) predictions and long-term (200-time-step) recursive predictions. Additionally, the networks' robustness is assessed under varying levels of Gaussian Noise (ranging from 1% to 5%).
 
 These procedures are implemented in the following files respectively:
 
@@ -22,7 +20,7 @@ These procedures are implemented in the following files respectively:
 
 
 ## Citation 
-Parts of this code have been used to develop the following research paper: "Deep Learning Models for Stable Gait Prediction Applied to Exoskeleton Reference Trajectories for Children With Cerebral Palsy", available at: https://ieeexplore.ieee.org/document/10058948
+Parts of this code have contributed to the development of the research paper titled: "Deep Learning Models for Stable Gait Prediction Applied to Exoskeleton Reference Trajectories for Children With Cerebral Palsy", available at: https://ieeexplore.ieee.org/document/10058948
 
 ```
 @article{kolaghassi2023deep,
