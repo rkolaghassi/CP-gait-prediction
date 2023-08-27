@@ -37,5 +37,5 @@ Parts of this code have been used to develop the following research paper: "Deep
 ```
 
 ## Credits
-This research was supported by the Interreg 2 Seas Programme 2014–2020, European Regional Development Fund (ERDF) under Contract2S05-038 (project links: www.motion-interreg.eu and www.interreg2seas.eu/en/MOTION). The data used to train these models has been collected and provided by Canterbury Christ Church University, and Chailey Clinical Services, both partners of the MOTION project. 
+This research was supported by the Interreg 2 Seas Programme 2014–2020, European Regional Development Fund (ERDF) under Contract 2S05-038 (project links: www.motion-interreg.eu and www.interreg2seas.eu/en/MOTION). The data used to train these models has been collected and provided by Canterbury Christ Church University, and Chailey Clinical Services, both partners of the MOTION project. 
 
